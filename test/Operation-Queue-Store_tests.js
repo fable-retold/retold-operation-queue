@@ -16,8 +16,9 @@ const { createStandalone } = require('../source/Operation-Queue.js');
 
 function _standalone(pFile)
 {
+	// createStandalone returns the intent engine; the store lives at engine.Store.
 	return new Promise((fResolve, fReject) =>
-		createStandalone({ SQLiteFilePath: pFile }, (pError, pStore) => (pError ? fReject(pError) : fResolve(pStore))));
+		createStandalone({ SQLiteFilePath: pFile }, (pError, pEngine) => (pError ? fReject(pError) : fResolve(pEngine.Store))));
 }
 
 suite('retold-operation-queue store', () =>
