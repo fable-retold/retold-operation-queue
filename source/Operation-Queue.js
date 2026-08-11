@@ -13,6 +13,7 @@ const libFable = require('fable');
 const OperationQueueStore = require('./Operation-Queue-Store.js');
 const OperationQueueIntent = require('./Operation-Queue-Intent.js');
 const OperationQueueScheduler = require('./Operation-Queue-Scheduler.js');
+const UltravisorExecutionClient = require('./Ultravisor-Execution-Client.js');
 const libLanes = require('./Operation-Queue-Lanes.js');
 const _MeadowModel = require('../data_model/compiled/OperationQueue-Extended.json');
 
@@ -49,4 +50,4 @@ function createStandalone(pOptions, fCallback)
 	tmpStore.connect((pError) => fCallback(pError, tmpIntent, tmpFable));
 }
 
-module.exports = { OperationQueueStore, OperationQueueIntent, OperationQueueScheduler, Lanes: libLanes, MeadowModel: _MeadowModel, createStandalone };
+module.exports = { OperationQueueStore, OperationQueueIntent, OperationQueueScheduler, UltravisorExecutionClient, Lanes: libLanes, MeadowModel: _MeadowModel, createStandalone };

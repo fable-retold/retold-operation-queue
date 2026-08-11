@@ -208,6 +208,17 @@ class OperationQueueStore extends libFableServiceProviderBase
 		return this.readTasks(pScope, (pQuery) => pQuery.addFilter('IDOperationGroup', pIDOperationGroup))
 			.then((pRows) => pRows.filter((pRow) => pRow.Status === 'Fed' || pRow.Status === 'Running'));
 	}
+
+	// Every in-flight task with an ExecRef, across all owners (for reconciling against the execution queue).
+	readInflightTasks()
+	{
+		return Promise.all(
+			[
+				this._reads('OperationTask', (pQuery) => pQuery.addFilter('Status', 'Fed')),
+				this._reads('OperationTask', (pQuery) => pQuery.addFilter('Status', 'Running'))
+			])
+			.then((pResults) => pResults[0].concat(pResults[1]).filter((pRow) => !pRow.Deleted && pRow.ExecRef));
+	}
 }
 
 module.exports = OperationQueueStore;
