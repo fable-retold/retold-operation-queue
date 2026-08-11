@@ -1,0 +1,2111 @@
+{
+    "Tables": {
+        "OperationGroup": {
+            "TableName": "OperationGroup",
+            "Domain": "Default",
+            "Columns": [
+                {
+                    "Column": "IDOperationGroup",
+                    "DataType": "ID"
+                },
+                {
+                    "Column": "GUIDOperationGroup",
+                    "DataType": "GUID",
+                    "Size": "36"
+                },
+                {
+                    "Column": "CreateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "UpdateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "Deleted",
+                    "DataType": "Boolean"
+                },
+                {
+                    "Column": "DeleteDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "CreatingIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "OwnerIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDCustomer",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "ConsumerKey",
+                    "DataType": "String",
+                    "Size": "64"
+                },
+                {
+                    "Column": "OperationType",
+                    "DataType": "String",
+                    "Size": "64"
+                },
+                {
+                    "Column": "Label",
+                    "DataType": "String",
+                    "Size": "400"
+                },
+                {
+                    "Column": "SourceRef",
+                    "DataType": "String",
+                    "Size": "2048"
+                },
+                {
+                    "Column": "Lane",
+                    "DataType": "String",
+                    "Size": "16"
+                },
+                {
+                    "Column": "Priority",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "Status",
+                    "DataType": "String",
+                    "Size": "16"
+                },
+                {
+                    "Column": "TotalUnits",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "FedUnits",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "CompletedUnits",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "FailedUnits",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "SkippedUnits",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "Params",
+                    "DataType": "JSON"
+                },
+                {
+                    "Column": "StartedDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "FinishedDate",
+                    "DataType": "DateTime"
+                }
+            ],
+            "Indices": [],
+            "Description": "A unit of intended work: a folder, a browse-selection, or a library subtree a consumer wants\n\noperated on (for example, thumbnail every image under this path). It knows how many units it\n\ncovers, but its leaf tasks are expanded lazily; the group carries the running counts, so a\n\ncompleted group IS the history (there is no per-task archive). Owner-scoped: the consumer stamps\n\nOwnerIDUser and IDCustomer from its session. Lane and Priority govern scheduling; a whole group is\n\nreprioritized or canceled as one.",
+            "MeadowSchema": {
+                "Scope": "OperationGroup",
+                "DefaultIdentifier": "IDOperationGroup",
+                "Domain": "Default",
+                "Schema": [
+                    {
+                        "Column": "IDOperationGroup",
+                        "Type": "AutoIdentity",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "GUIDOperationGroup",
+                        "Type": "AutoGUID",
+                        "Size": "36"
+                    },
+                    {
+                        "Column": "CreateDate",
+                        "Type": "CreateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "UpdateDate",
+                        "Type": "UpdateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "Deleted",
+                        "Type": "Deleted",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "DeleteDate",
+                        "Type": "DeleteDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "CreatingIDUser",
+                        "Type": "CreateIDUser",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "OwnerIDUser",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDCustomer",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "ConsumerKey",
+                        "Type": "String",
+                        "Size": "64"
+                    },
+                    {
+                        "Column": "OperationType",
+                        "Type": "String",
+                        "Size": "64"
+                    },
+                    {
+                        "Column": "Label",
+                        "Type": "String",
+                        "Size": "400"
+                    },
+                    {
+                        "Column": "SourceRef",
+                        "Type": "String",
+                        "Size": "2048"
+                    },
+                    {
+                        "Column": "Lane",
+                        "Type": "String",
+                        "Size": "16"
+                    },
+                    {
+                        "Column": "Priority",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "Status",
+                        "Type": "String",
+                        "Size": "16"
+                    },
+                    {
+                        "Column": "TotalUnits",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "FedUnits",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "CompletedUnits",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "FailedUnits",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "SkippedUnits",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "Params",
+                        "Type": "Default",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "StartedDate",
+                        "Type": "DateTime",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "FinishedDate",
+                        "Type": "DateTime",
+                        "Size": "Default"
+                    }
+                ],
+                "DefaultObject": {
+                    "IDOperationGroup": 0,
+                    "GUIDOperationGroup": "0x0000000000000000",
+                    "CreateDate": null,
+                    "UpdateDate": null,
+                    "Deleted": false,
+                    "DeleteDate": null,
+                    "CreatingIDUser": 0,
+                    "OwnerIDUser": 0,
+                    "IDCustomer": 0,
+                    "ConsumerKey": "",
+                    "OperationType": "",
+                    "Label": "",
+                    "SourceRef": "",
+                    "Lane": "",
+                    "Priority": 0,
+                    "Status": "",
+                    "TotalUnits": 0,
+                    "FedUnits": 0,
+                    "CompletedUnits": 0,
+                    "FailedUnits": 0,
+                    "SkippedUnits": 0,
+                    "StartedDate": null,
+                    "FinishedDate": null
+                },
+                "JsonSchema": {
+                    "title": "OperationGroup",
+                    "type": "object",
+                    "properties": {
+                        "IDOperationGroup": {
+                            "type": "integer",
+                            "size": "Default"
+                        },
+                        "GUIDOperationGroup": {
+                            "type": "string",
+                            "size": "36"
+                        },
+                        "CreateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "UpdateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "Deleted": {
+                            "type": "boolean",
+                            "size": "Default"
+                        },
+                        "DeleteDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "CreatingIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "OwnerIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDCustomer": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "ConsumerKey": {
+                            "type": "string",
+                            "size": "64"
+                        },
+                        "OperationType": {
+                            "type": "string",
+                            "size": "64"
+                        },
+                        "Label": {
+                            "type": "string",
+                            "size": "400"
+                        },
+                        "SourceRef": {
+                            "type": "string",
+                            "size": "2048"
+                        },
+                        "Lane": {
+                            "type": "string",
+                            "size": "16"
+                        },
+                        "Priority": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "Status": {
+                            "type": "string",
+                            "size": "16"
+                        },
+                        "TotalUnits": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "FedUnits": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "CompletedUnits": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "FailedUnits": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "SkippedUnits": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "StartedDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "FinishedDate": {
+                            "type": "string",
+                            "size": "Default"
+                        }
+                    },
+                    "required": [
+                        "IDOperationGroup"
+                    ],
+                    "MeadowSchema": {
+                        "TableName": "OperationGroup",
+                        "Domain": "Default",
+                        "Columns": [
+                            {
+                                "Column": "IDOperationGroup",
+                                "DataType": "ID"
+                            },
+                            {
+                                "Column": "GUIDOperationGroup",
+                                "DataType": "GUID",
+                                "Size": "36"
+                            },
+                            {
+                                "Column": "CreateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "UpdateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "Deleted",
+                                "DataType": "Boolean"
+                            },
+                            {
+                                "Column": "DeleteDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "CreatingIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "OwnerIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDCustomer",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "ConsumerKey",
+                                "DataType": "String",
+                                "Size": "64"
+                            },
+                            {
+                                "Column": "OperationType",
+                                "DataType": "String",
+                                "Size": "64"
+                            },
+                            {
+                                "Column": "Label",
+                                "DataType": "String",
+                                "Size": "400"
+                            },
+                            {
+                                "Column": "SourceRef",
+                                "DataType": "String",
+                                "Size": "2048"
+                            },
+                            {
+                                "Column": "Lane",
+                                "DataType": "String",
+                                "Size": "16"
+                            },
+                            {
+                                "Column": "Priority",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "Status",
+                                "DataType": "String",
+                                "Size": "16"
+                            },
+                            {
+                                "Column": "TotalUnits",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "FedUnits",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "CompletedUnits",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "FailedUnits",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "SkippedUnits",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "Params",
+                                "DataType": "JSON"
+                            },
+                            {
+                                "Column": "StartedDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "FinishedDate",
+                                "DataType": "DateTime"
+                            }
+                        ],
+                        "Indices": [],
+                        "Description": "A unit of intended work: a folder, a browse-selection, or a library subtree a consumer wants\n\noperated on (for example, thumbnail every image under this path). It knows how many units it\n\ncovers, but its leaf tasks are expanded lazily; the group carries the running counts, so a\n\ncompleted group IS the history (there is no per-task archive). Owner-scoped: the consumer stamps\n\nOwnerIDUser and IDCustomer from its session. Lane and Priority govern scheduling; a whole group is\n\nreprioritized or canceled as one.",
+                        "MeadowSchema": {
+                            "Scope": "OperationGroup",
+                            "DefaultIdentifier": "IDOperationGroup",
+                            "Domain": "Default",
+                            "Schema": [
+                                {
+                                    "Column": "IDOperationGroup",
+                                    "Type": "AutoIdentity",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "GUIDOperationGroup",
+                                    "Type": "AutoGUID",
+                                    "Size": "36"
+                                },
+                                {
+                                    "Column": "CreateDate",
+                                    "Type": "CreateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "UpdateDate",
+                                    "Type": "UpdateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "Deleted",
+                                    "Type": "Deleted",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "DeleteDate",
+                                    "Type": "DeleteDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "CreatingIDUser",
+                                    "Type": "CreateIDUser",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "OwnerIDUser",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDCustomer",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "ConsumerKey",
+                                    "Type": "String",
+                                    "Size": "64"
+                                },
+                                {
+                                    "Column": "OperationType",
+                                    "Type": "String",
+                                    "Size": "64"
+                                },
+                                {
+                                    "Column": "Label",
+                                    "Type": "String",
+                                    "Size": "400"
+                                },
+                                {
+                                    "Column": "SourceRef",
+                                    "Type": "String",
+                                    "Size": "2048"
+                                },
+                                {
+                                    "Column": "Lane",
+                                    "Type": "String",
+                                    "Size": "16"
+                                },
+                                {
+                                    "Column": "Priority",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "Status",
+                                    "Type": "String",
+                                    "Size": "16"
+                                },
+                                {
+                                    "Column": "TotalUnits",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "FedUnits",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "CompletedUnits",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "FailedUnits",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "SkippedUnits",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "Params",
+                                    "Type": "Default",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "StartedDate",
+                                    "Type": "DateTime",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "FinishedDate",
+                                    "Type": "DateTime",
+                                    "Size": "Default"
+                                }
+                            ],
+                            "DefaultObject": {
+                                "IDOperationGroup": 0,
+                                "GUIDOperationGroup": "0x0000000000000000",
+                                "CreateDate": null,
+                                "UpdateDate": null,
+                                "Deleted": false,
+                                "DeleteDate": null,
+                                "CreatingIDUser": 0,
+                                "OwnerIDUser": 0,
+                                "IDCustomer": 0,
+                                "ConsumerKey": "",
+                                "OperationType": "",
+                                "Label": "",
+                                "SourceRef": "",
+                                "Lane": "",
+                                "Priority": 0,
+                                "Status": "",
+                                "TotalUnits": 0,
+                                "FedUnits": 0,
+                                "CompletedUnits": 0,
+                                "FailedUnits": 0,
+                                "SkippedUnits": 0,
+                                "StartedDate": null,
+                                "FinishedDate": null
+                            },
+                            "JsonSchema": {
+                                "title": "OperationGroup",
+                                "type": "object",
+                                "properties": {
+                                    "IDOperationGroup": {
+                                        "type": "integer",
+                                        "size": "Default"
+                                    },
+                                    "GUIDOperationGroup": {
+                                        "type": "string",
+                                        "size": "36"
+                                    },
+                                    "CreateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "UpdateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "Deleted": {
+                                        "type": "boolean",
+                                        "size": "Default"
+                                    },
+                                    "DeleteDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "CreatingIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "OwnerIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDCustomer": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "ConsumerKey": {
+                                        "type": "string",
+                                        "size": "64"
+                                    },
+                                    "OperationType": {
+                                        "type": "string",
+                                        "size": "64"
+                                    },
+                                    "Label": {
+                                        "type": "string",
+                                        "size": "400"
+                                    },
+                                    "SourceRef": {
+                                        "type": "string",
+                                        "size": "2048"
+                                    },
+                                    "Lane": {
+                                        "type": "string",
+                                        "size": "16"
+                                    },
+                                    "Priority": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "Status": {
+                                        "type": "string",
+                                        "size": "16"
+                                    },
+                                    "TotalUnits": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "FedUnits": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "CompletedUnits": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "FailedUnits": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "SkippedUnits": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "StartedDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "FinishedDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    }
+                                },
+                                "required": [
+                                    "IDOperationGroup"
+                                ]
+                            },
+                            "Authorization": {}
+                        }
+                    }
+                },
+                "Authorization": {}
+            }
+        },
+        "OperationTask": {
+            "TableName": "OperationTask",
+            "Domain": "Default",
+            "Columns": [
+                {
+                    "Column": "IDOperationTask",
+                    "DataType": "ID"
+                },
+                {
+                    "Column": "GUIDOperationTask",
+                    "DataType": "GUID",
+                    "Size": "36"
+                },
+                {
+                    "Column": "CreateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "UpdateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "Deleted",
+                    "DataType": "Boolean"
+                },
+                {
+                    "Column": "DeleteDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "CreatingIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "OwnerIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDCustomer",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDOperationGroup",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "UnitKey",
+                    "DataType": "String",
+                    "Size": "2048"
+                },
+                {
+                    "Column": "Lane",
+                    "DataType": "String",
+                    "Size": "16"
+                },
+                {
+                    "Column": "Priority",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "Status",
+                    "DataType": "String",
+                    "Size": "16"
+                },
+                {
+                    "Column": "ExecRef",
+                    "DataType": "String",
+                    "Size": "128"
+                },
+                {
+                    "Column": "Attempt",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "LastError",
+                    "DataType": "Text"
+                },
+                {
+                    "Column": "Params",
+                    "DataType": "JSON"
+                },
+                {
+                    "Column": "FedDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "FinishedDate",
+                    "DataType": "DateTime"
+                }
+            ],
+            "Indices": [],
+            "Description": "A single leaf unit of a group (one file, one operation). Only tasks that are in-flight (fed to the\n\nexecution queue) or terminally failed are persisted here; the vast pending backlog is never\n\nmaterialized, it is regenerated on demand from the group's enumerator and cursor. ExecRef holds the\n\nexecution-queue work-item handle once fed, so status callbacks reconcile back to the task.",
+            "MeadowSchema": {
+                "Scope": "OperationTask",
+                "DefaultIdentifier": "IDOperationTask",
+                "Domain": "Default",
+                "Schema": [
+                    {
+                        "Column": "IDOperationTask",
+                        "Type": "AutoIdentity",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "GUIDOperationTask",
+                        "Type": "AutoGUID",
+                        "Size": "36"
+                    },
+                    {
+                        "Column": "CreateDate",
+                        "Type": "CreateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "UpdateDate",
+                        "Type": "UpdateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "Deleted",
+                        "Type": "Deleted",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "DeleteDate",
+                        "Type": "DeleteDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "CreatingIDUser",
+                        "Type": "CreateIDUser",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "OwnerIDUser",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDCustomer",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDOperationGroup",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "UnitKey",
+                        "Type": "String",
+                        "Size": "2048"
+                    },
+                    {
+                        "Column": "Lane",
+                        "Type": "String",
+                        "Size": "16"
+                    },
+                    {
+                        "Column": "Priority",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "Status",
+                        "Type": "String",
+                        "Size": "16"
+                    },
+                    {
+                        "Column": "ExecRef",
+                        "Type": "String",
+                        "Size": "128"
+                    },
+                    {
+                        "Column": "Attempt",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "LastError",
+                        "Type": "String",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "Params",
+                        "Type": "Default",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "FedDate",
+                        "Type": "DateTime",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "FinishedDate",
+                        "Type": "DateTime",
+                        "Size": "Default"
+                    }
+                ],
+                "DefaultObject": {
+                    "IDOperationTask": 0,
+                    "GUIDOperationTask": "0x0000000000000000",
+                    "CreateDate": null,
+                    "UpdateDate": null,
+                    "Deleted": false,
+                    "DeleteDate": null,
+                    "CreatingIDUser": 0,
+                    "OwnerIDUser": 0,
+                    "IDCustomer": 0,
+                    "IDOperationGroup": 0,
+                    "UnitKey": "",
+                    "Lane": "",
+                    "Priority": 0,
+                    "Status": "",
+                    "ExecRef": "",
+                    "Attempt": 0,
+                    "LastError": "",
+                    "FedDate": null,
+                    "FinishedDate": null
+                },
+                "JsonSchema": {
+                    "title": "OperationTask",
+                    "type": "object",
+                    "properties": {
+                        "IDOperationTask": {
+                            "type": "integer",
+                            "size": "Default"
+                        },
+                        "GUIDOperationTask": {
+                            "type": "string",
+                            "size": "36"
+                        },
+                        "CreateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "UpdateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "Deleted": {
+                            "type": "boolean",
+                            "size": "Default"
+                        },
+                        "DeleteDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "CreatingIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "OwnerIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDCustomer": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDOperationGroup": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "UnitKey": {
+                            "type": "string",
+                            "size": "2048"
+                        },
+                        "Lane": {
+                            "type": "string",
+                            "size": "16"
+                        },
+                        "Priority": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "Status": {
+                            "type": "string",
+                            "size": "16"
+                        },
+                        "ExecRef": {
+                            "type": "string",
+                            "size": "128"
+                        },
+                        "Attempt": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "LastError": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "FedDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "FinishedDate": {
+                            "type": "string",
+                            "size": "Default"
+                        }
+                    },
+                    "required": [
+                        "IDOperationTask"
+                    ],
+                    "MeadowSchema": {
+                        "TableName": "OperationTask",
+                        "Domain": "Default",
+                        "Columns": [
+                            {
+                                "Column": "IDOperationTask",
+                                "DataType": "ID"
+                            },
+                            {
+                                "Column": "GUIDOperationTask",
+                                "DataType": "GUID",
+                                "Size": "36"
+                            },
+                            {
+                                "Column": "CreateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "UpdateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "Deleted",
+                                "DataType": "Boolean"
+                            },
+                            {
+                                "Column": "DeleteDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "CreatingIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "OwnerIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDCustomer",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDOperationGroup",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "UnitKey",
+                                "DataType": "String",
+                                "Size": "2048"
+                            },
+                            {
+                                "Column": "Lane",
+                                "DataType": "String",
+                                "Size": "16"
+                            },
+                            {
+                                "Column": "Priority",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "Status",
+                                "DataType": "String",
+                                "Size": "16"
+                            },
+                            {
+                                "Column": "ExecRef",
+                                "DataType": "String",
+                                "Size": "128"
+                            },
+                            {
+                                "Column": "Attempt",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "LastError",
+                                "DataType": "Text"
+                            },
+                            {
+                                "Column": "Params",
+                                "DataType": "JSON"
+                            },
+                            {
+                                "Column": "FedDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "FinishedDate",
+                                "DataType": "DateTime"
+                            }
+                        ],
+                        "Indices": [],
+                        "Description": "A single leaf unit of a group (one file, one operation). Only tasks that are in-flight (fed to the\n\nexecution queue) or terminally failed are persisted here; the vast pending backlog is never\n\nmaterialized, it is regenerated on demand from the group's enumerator and cursor. ExecRef holds the\n\nexecution-queue work-item handle once fed, so status callbacks reconcile back to the task.",
+                        "MeadowSchema": {
+                            "Scope": "OperationTask",
+                            "DefaultIdentifier": "IDOperationTask",
+                            "Domain": "Default",
+                            "Schema": [
+                                {
+                                    "Column": "IDOperationTask",
+                                    "Type": "AutoIdentity",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "GUIDOperationTask",
+                                    "Type": "AutoGUID",
+                                    "Size": "36"
+                                },
+                                {
+                                    "Column": "CreateDate",
+                                    "Type": "CreateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "UpdateDate",
+                                    "Type": "UpdateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "Deleted",
+                                    "Type": "Deleted",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "DeleteDate",
+                                    "Type": "DeleteDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "CreatingIDUser",
+                                    "Type": "CreateIDUser",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "OwnerIDUser",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDCustomer",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDOperationGroup",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "UnitKey",
+                                    "Type": "String",
+                                    "Size": "2048"
+                                },
+                                {
+                                    "Column": "Lane",
+                                    "Type": "String",
+                                    "Size": "16"
+                                },
+                                {
+                                    "Column": "Priority",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "Status",
+                                    "Type": "String",
+                                    "Size": "16"
+                                },
+                                {
+                                    "Column": "ExecRef",
+                                    "Type": "String",
+                                    "Size": "128"
+                                },
+                                {
+                                    "Column": "Attempt",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "LastError",
+                                    "Type": "String",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "Params",
+                                    "Type": "Default",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "FedDate",
+                                    "Type": "DateTime",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "FinishedDate",
+                                    "Type": "DateTime",
+                                    "Size": "Default"
+                                }
+                            ],
+                            "DefaultObject": {
+                                "IDOperationTask": 0,
+                                "GUIDOperationTask": "0x0000000000000000",
+                                "CreateDate": null,
+                                "UpdateDate": null,
+                                "Deleted": false,
+                                "DeleteDate": null,
+                                "CreatingIDUser": 0,
+                                "OwnerIDUser": 0,
+                                "IDCustomer": 0,
+                                "IDOperationGroup": 0,
+                                "UnitKey": "",
+                                "Lane": "",
+                                "Priority": 0,
+                                "Status": "",
+                                "ExecRef": "",
+                                "Attempt": 0,
+                                "LastError": "",
+                                "FedDate": null,
+                                "FinishedDate": null
+                            },
+                            "JsonSchema": {
+                                "title": "OperationTask",
+                                "type": "object",
+                                "properties": {
+                                    "IDOperationTask": {
+                                        "type": "integer",
+                                        "size": "Default"
+                                    },
+                                    "GUIDOperationTask": {
+                                        "type": "string",
+                                        "size": "36"
+                                    },
+                                    "CreateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "UpdateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "Deleted": {
+                                        "type": "boolean",
+                                        "size": "Default"
+                                    },
+                                    "DeleteDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "CreatingIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "OwnerIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDCustomer": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDOperationGroup": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "UnitKey": {
+                                        "type": "string",
+                                        "size": "2048"
+                                    },
+                                    "Lane": {
+                                        "type": "string",
+                                        "size": "16"
+                                    },
+                                    "Priority": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "Status": {
+                                        "type": "string",
+                                        "size": "16"
+                                    },
+                                    "ExecRef": {
+                                        "type": "string",
+                                        "size": "128"
+                                    },
+                                    "Attempt": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "LastError": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "FedDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "FinishedDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    }
+                                },
+                                "required": [
+                                    "IDOperationTask"
+                                ]
+                            },
+                            "Authorization": {}
+                        }
+                    }
+                },
+                "Authorization": {}
+            }
+        },
+        "OperationCursor": {
+            "TableName": "OperationCursor",
+            "Domain": "Default",
+            "Columns": [
+                {
+                    "Column": "IDOperationCursor",
+                    "DataType": "ID"
+                },
+                {
+                    "Column": "GUIDOperationCursor",
+                    "DataType": "GUID",
+                    "Size": "36"
+                },
+                {
+                    "Column": "CreateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "UpdateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "OwnerIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDCustomer",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDOperationGroup",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "CursorToken",
+                    "DataType": "Text"
+                },
+                {
+                    "Column": "Exhausted",
+                    "DataType": "Boolean"
+                },
+                {
+                    "Column": "YieldedCount",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                }
+            ],
+            "Indices": [],
+            "Description": "The resumable position of a group's lazy enumerator: where the next batch of leaf units picks up,\n\nso a huge group can be walked incrementally across restarts without ever listing it all at once.\n\nOne row per group. CursorToken is opaque and consumer-defined (for example, the last path yielded).",
+            "MeadowSchema": {
+                "Scope": "OperationCursor",
+                "DefaultIdentifier": "IDOperationCursor",
+                "Domain": "Default",
+                "Schema": [
+                    {
+                        "Column": "IDOperationCursor",
+                        "Type": "AutoIdentity",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "GUIDOperationCursor",
+                        "Type": "AutoGUID",
+                        "Size": "36"
+                    },
+                    {
+                        "Column": "CreateDate",
+                        "Type": "CreateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "UpdateDate",
+                        "Type": "UpdateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "OwnerIDUser",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDCustomer",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDOperationGroup",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "CursorToken",
+                        "Type": "String",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "Exhausted",
+                        "Type": "Boolean",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "YieldedCount",
+                        "Type": "Integer",
+                        "Size": "int"
+                    }
+                ],
+                "DefaultObject": {
+                    "IDOperationCursor": 0,
+                    "GUIDOperationCursor": "0x0000000000000000",
+                    "CreateDate": null,
+                    "UpdateDate": null,
+                    "OwnerIDUser": 0,
+                    "IDCustomer": 0,
+                    "IDOperationGroup": 0,
+                    "CursorToken": "",
+                    "Exhausted": false,
+                    "YieldedCount": 0
+                },
+                "JsonSchema": {
+                    "title": "OperationCursor",
+                    "type": "object",
+                    "properties": {
+                        "IDOperationCursor": {
+                            "type": "integer",
+                            "size": "Default"
+                        },
+                        "GUIDOperationCursor": {
+                            "type": "string",
+                            "size": "36"
+                        },
+                        "CreateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "UpdateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "OwnerIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDCustomer": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDOperationGroup": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "CursorToken": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "Exhausted": {
+                            "type": "boolean",
+                            "size": "Default"
+                        },
+                        "YieldedCount": {
+                            "type": "integer",
+                            "size": "int"
+                        }
+                    },
+                    "required": [
+                        "IDOperationCursor"
+                    ],
+                    "MeadowSchema": {
+                        "TableName": "OperationCursor",
+                        "Domain": "Default",
+                        "Columns": [
+                            {
+                                "Column": "IDOperationCursor",
+                                "DataType": "ID"
+                            },
+                            {
+                                "Column": "GUIDOperationCursor",
+                                "DataType": "GUID",
+                                "Size": "36"
+                            },
+                            {
+                                "Column": "CreateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "UpdateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "OwnerIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDCustomer",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDOperationGroup",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "CursorToken",
+                                "DataType": "Text"
+                            },
+                            {
+                                "Column": "Exhausted",
+                                "DataType": "Boolean"
+                            },
+                            {
+                                "Column": "YieldedCount",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            }
+                        ],
+                        "Indices": [],
+                        "Description": "The resumable position of a group's lazy enumerator: where the next batch of leaf units picks up,\n\nso a huge group can be walked incrementally across restarts without ever listing it all at once.\n\nOne row per group. CursorToken is opaque and consumer-defined (for example, the last path yielded).",
+                        "MeadowSchema": {
+                            "Scope": "OperationCursor",
+                            "DefaultIdentifier": "IDOperationCursor",
+                            "Domain": "Default",
+                            "Schema": [
+                                {
+                                    "Column": "IDOperationCursor",
+                                    "Type": "AutoIdentity",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "GUIDOperationCursor",
+                                    "Type": "AutoGUID",
+                                    "Size": "36"
+                                },
+                                {
+                                    "Column": "CreateDate",
+                                    "Type": "CreateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "UpdateDate",
+                                    "Type": "UpdateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "OwnerIDUser",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDCustomer",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDOperationGroup",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "CursorToken",
+                                    "Type": "String",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "Exhausted",
+                                    "Type": "Boolean",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "YieldedCount",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                }
+                            ],
+                            "DefaultObject": {
+                                "IDOperationCursor": 0,
+                                "GUIDOperationCursor": "0x0000000000000000",
+                                "CreateDate": null,
+                                "UpdateDate": null,
+                                "OwnerIDUser": 0,
+                                "IDCustomer": 0,
+                                "IDOperationGroup": 0,
+                                "CursorToken": "",
+                                "Exhausted": false,
+                                "YieldedCount": 0
+                            },
+                            "JsonSchema": {
+                                "title": "OperationCursor",
+                                "type": "object",
+                                "properties": {
+                                    "IDOperationCursor": {
+                                        "type": "integer",
+                                        "size": "Default"
+                                    },
+                                    "GUIDOperationCursor": {
+                                        "type": "string",
+                                        "size": "36"
+                                    },
+                                    "CreateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "UpdateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "OwnerIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDCustomer": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDOperationGroup": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "CursorToken": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "Exhausted": {
+                                        "type": "boolean",
+                                        "size": "Default"
+                                    },
+                                    "YieldedCount": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    }
+                                },
+                                "required": [
+                                    "IDOperationCursor"
+                                ]
+                            },
+                            "Authorization": {}
+                        }
+                    }
+                },
+                "Authorization": {}
+            }
+        }
+    },
+    "TablesSequence": [
+        "OperationGroup",
+        "OperationTask",
+        "OperationCursor"
+    ],
+    "Authorization": {
+        "OperationGroup": {
+            "__DefaultAPISecurity": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Unauthenticated": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Readonly": {
+                "Create": "Deny",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Deny"
+            },
+            "User": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Manager": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Director": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Executive": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Administrator": {
+                "Create": "Allow",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Allow",
+                "Delete": "Allow",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Allow"
+            }
+        },
+        "OperationTask": {
+            "__DefaultAPISecurity": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Unauthenticated": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Readonly": {
+                "Create": "Deny",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Deny"
+            },
+            "User": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Manager": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Director": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Executive": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Administrator": {
+                "Create": "Allow",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Allow",
+                "Delete": "Allow",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Allow"
+            }
+        },
+        "OperationCursor": {
+            "__DefaultAPISecurity": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Unauthenticated": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Readonly": {
+                "Create": "Deny",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Deny"
+            },
+            "User": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Manager": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Director": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Executive": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Administrator": {
+                "Create": "Allow",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Allow",
+                "Delete": "Allow",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Allow"
+            }
+        }
+    },
+    "Endpoints": {
+        "Create": true,
+        "Read": true,
+        "Reads": true,
+        "ReadsBy": true,
+        "ReadMax": true,
+        "ReadSelectList": true,
+        "Update": true,
+        "Delete": true,
+        "Count": true,
+        "CountBy": true,
+        "Schema": true,
+        "Validate": true,
+        "New": true
+    },
+    "Pict": {}
+}

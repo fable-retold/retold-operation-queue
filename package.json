@@ -1,0 +1,53 @@
+{
+  "name": "retold-operation-queue",
+  "version": "0.0.1",
+  "description": "Intent/control layer over an execution queue: durable operation groups that lazily expand into leaf tasks, lane-based preemptive priority, cache-key dedup, and metered dispatch of a bounded window into a worker queue (for example Ultravisor). The source of truth for very large, browse-driven operation backlogs.",
+  "main": "source/Operation-Queue.js",
+  "scripts": {
+    "test": "npx mocha -u tdd -R spec",
+    "coverage": "npx nyc --reporter=text --reporter=lcov mocha -u tdd -R spec",
+    "schema:compile": "npx stricture compile data_model/Operation-Queue.ddl -o data_model/compiled/ -p OperationQueue"
+  },
+  "keywords": [
+    "retold",
+    "fable",
+    "meadow",
+    "queue",
+    "operation-queue",
+    "job-queue",
+    "scheduler",
+    "priority-queue",
+    "ultravisor",
+    "work-queue"
+  ],
+  "author": "Steven Velozo <steven@velozo.com> (http://velozo.com/)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fable-retold/retold-operation-queue.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fable-retold/retold-operation-queue/issues"
+  },
+  "homepage": "https://github.com/fable-retold/retold-operation-queue#readme",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "source/",
+    "data_model/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "fable": "^3.1.80",
+    "fable-serviceproviderbase": "^3.0.19",
+    "meadow": "^2.0.47",
+    "meadow-connection-sqlite": "^1.0.21"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "stricture": "^4.0.6"
+  }
+}
