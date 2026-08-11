@@ -12,6 +12,7 @@ const libFable = require('fable');
 
 const OperationQueueStore = require('./Operation-Queue-Store.js');
 const OperationQueueIntent = require('./Operation-Queue-Intent.js');
+const OperationQueueScheduler = require('./Operation-Queue-Scheduler.js');
 const libLanes = require('./Operation-Queue-Lanes.js');
 const _MeadowModel = require('../data_model/compiled/OperationQueue-Extended.json');
 
@@ -36,10 +37,16 @@ function createStandalone(pOptions, fCallback)
 	}
 	tmpFable.addAndInstantiateServiceType('OperationQueueStore', OperationQueueStore);
 	tmpFable.addAndInstantiateServiceType('OperationQueueIntent', OperationQueueIntent);
+	tmpFable.addAndInstantiateServiceType('OperationQueueScheduler', OperationQueueScheduler);
 	let tmpStore = tmpFable.OperationQueueStore;
 	let tmpIntent = tmpFable.OperationQueueIntent;
+	let tmpScheduler = tmpFable.OperationQueueScheduler;
 	tmpIntent.setStore(tmpStore);
+	tmpScheduler.setIntent(tmpIntent);
+	if (tmpOptions.WindowSize) { tmpScheduler.WindowSize = tmpOptions.WindowSize; }
+	// The intent engine is the returned handle; the store and scheduler hang off it.
+	tmpIntent.Scheduler = tmpScheduler;
 	tmpStore.connect((pError) => fCallback(pError, tmpIntent, tmpFable));
 }
 
-module.exports = { OperationQueueStore, OperationQueueIntent, Lanes: libLanes, MeadowModel: _MeadowModel, createStandalone };
+module.exports = { OperationQueueStore, OperationQueueIntent, OperationQueueScheduler, Lanes: libLanes, MeadowModel: _MeadowModel, createStandalone };

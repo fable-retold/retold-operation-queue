@@ -171,6 +171,43 @@ class OperationQueueStore extends libFableServiceProviderBase
 			return tmpSelf._create('OperationCursor', tmpSelf._own(pScope, pCursor), pScope.IDUser);
 		});
 	}
+
+	// ---- system-level reads (no owner filter) for the scheduler infrastructure ----
+	// The scheduler meters every owner's work into one shared execution window, so it needs an unscoped
+	// view. Rows still carry their owner scope; the scheduler uses it when it acts on their behalf.
+
+	// Count the in-flight tasks (the execution-window occupancy). Two equality reads keep this cheap even
+	// as Done/Failed rows accumulate -- only Fed/Running rows are ever matched.
+	countInflightTasks()
+	{
+		return Promise.all(
+			[
+				this._reads('OperationTask', (pQuery) => pQuery.addFilter('Status', 'Fed')),
+				this._reads('OperationTask', (pQuery) => pQuery.addFilter('Status', 'Running'))
+			])
+			.then((pResults) => pResults[0].filter((pRow) => !pRow.Deleted).length + pResults[1].filter((pRow) => !pRow.Deleted).length);
+	}
+
+	// Every group in a given Status, across all owners (the scheduler sorts these by Priority).
+	readGroupsByStatus(pStatus)
+	{
+		return this._reads('OperationGroup', (pQuery) => pQuery.addFilter('Status', pStatus))
+			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted));
+	}
+
+	// Resolve a task by its execution-queue handle (how a completion callback finds its task).
+	readTaskByExecRef(pExecRef)
+	{
+		return this._reads('OperationTask', (pQuery) => pQuery.addFilter('ExecRef', pExecRef))
+			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted)[0] || null);
+	}
+
+	// The in-flight tasks of one group (owner-scoped), for group cancellation.
+	readInflightTasksForGroup(pScope, pIDOperationGroup)
+	{
+		return this.readTasks(pScope, (pQuery) => pQuery.addFilter('IDOperationGroup', pIDOperationGroup))
+			.then((pRows) => pRows.filter((pRow) => pRow.Status === 'Fed' || pRow.Status === 'Running'));
+	}
 }
 
 module.exports = OperationQueueStore;

@@ -63,6 +63,14 @@ class OperationQueueIntent extends libFableServiceProviderBase
 			.then(() => tmpSelf.Store.readGroup(pScope, pGroup.IDOperationGroup));
 	}
 
+	// Move a group from Planned to Active so the scheduler will feed it. Returns the reloaded group.
+	activateGroup(pScope, pGroup)
+	{
+		let tmpSelf = this;
+		return this.Store.updateGroup(pScope, { IDOperationGroup: pGroup.IDOperationGroup, Status: 'Active' })
+			.then(() => tmpSelf.Store.readGroup(pScope, pGroup.IDOperationGroup));
+	}
+
 	/**
 	 * Pull the next batch of units for a group: read the saved cursor, call the consumer's enumerator
 	 * from there, drop units the dedup check reports as already done, advance + persist the cursor, and
