@@ -79,9 +79,62 @@ class OperationQueueStore extends libFableServiceProviderBase
 					tmpSelf.DAL[pTableName] = tmpDAL;
 				});
 				tmpSelf.Connected = true;
-				return fCallback();
+				return tmpSelf._ensureIndexes(tmpProvider.Service, () => fCallback());
 			});
 		});
+	}
+
+	/**
+	 * Create the queue's secondary indexes at boot (idempotent CREATE INDEX IF NOT EXISTS on both engines).
+	 * Stricture's `#ID*` columns compile to Numeric (not ForeignKey), so meadow's FK auto-indexer never fires,
+	 * and State/Status/NodeKey/ExecRef are neither FK nor GUID -- so WITHOUT these, every scheduler hot read
+	 * (countInflightForGroup, readGroupsByStatus, readTaskByExecRef, the frontier reads/counts, the per-
+	 * completion node lookup) is a full table scan that grows with the accumulating task/frontier rows. These
+	 * turn each into a seek. Failure is logged but never blocks boot.
+	 */
+	_ensureIndexes(pProviderService, fCallback)
+	{
+		let tmpSelf = this;
+		let tmpProvider = this.fable[pProviderService];
+		if (!tmpProvider || typeof tmpProvider.generateCreateIndexStatements !== 'function') { return fCallback(); }
+
+		let tmpManifest =
+		{
+			OperationGroup:    [ { Columns: [ 'Status' ] }, { Columns: [ 'OwnerIDUser', 'IDCustomer' ] } ],
+			OperationTask:     [ { Columns: [ 'IDOperationGroup', 'Status' ] }, { Columns: [ 'Status' ] }, { Columns: [ 'ExecRef' ] } ],
+			OperationFrontier: [ { Columns: [ 'IDOperationGroup', 'State' ] }, { Columns: [ 'IDOperationGroup', 'NodeKey' ] } ],
+			OperationCursor:   [ { Columns: [ 'IDOperationGroup' ] } ]
+		};
+
+		let tmpStatements = [];
+		Object.keys(tmpSelf.MeadowModel.Tables).forEach((pTableName) =>
+		{
+			let tmpTable = tmpSelf.MeadowModel.Tables[pTableName];
+			if (!Array.isArray(tmpTable.Indices)) { tmpTable.Indices = []; }
+			(tmpManifest[pTableName] || []).forEach((pIndex) =>
+			{
+				let tmpName = 'IX_M_' + pTableName + '_' + pIndex.Columns.join('_');
+				if (!tmpTable.Indices.some((pExisting) => (pExisting.Name === tmpName)))
+				{
+					tmpTable.Indices.push({ Name: tmpName, Columns: pIndex.Columns, Unique: !!pIndex.Unique });
+				}
+			});
+			try { tmpProvider.generateCreateIndexStatements(tmpTable).forEach((pStatement) => tmpStatements.push(pStatement)); }
+			catch (pError) { /* a connector without index support -- skip */ }
+		});
+
+		let tmpPos = 0;
+		let fNext = () =>
+		{
+			if (tmpPos >= tmpStatements.length) { return fCallback(); }
+			let tmpStatement = tmpStatements[tmpPos++];
+			tmpProvider.createIndex(tmpStatement, (pError) =>
+			{
+				if (pError) { tmpSelf.fable.log.warn(`OperationQueue index ${tmpStatement.Name} failed (non-fatal): ${(pError && pError.message) || pError}`); }
+				fNext();
+			});
+		};
+		fNext();
 	}
 
 	// ---- low-level promise wrappers over one entity's DAL ----
