@@ -71,6 +71,14 @@ class OperationQueueScheduler extends libFableServiceProviderBase
 				tmpRoom--;
 			}
 		}
+
+		// Reap any Active group that has fully drained. This catches the case a completion cannot -- a group
+		// that fed nothing (an empty enumeration, or one already fully done) never produces an outcome to
+		// trigger reportOutcome's reap. Progressing groups fall through cheaply on the in-flight check.
+		for (let tmpGroup of tmpGroups)
+		{
+			await this._reapIfDone({ IDUser: tmpGroup.OwnerIDUser, IDCustomer: tmpGroup.IDCustomer }, tmpGroup);
+		}
 		return { Fed: tmpFed, Occupancy: tmpOccupancy + tmpFed, RoomLeft: tmpRoom };
 	}
 
@@ -93,7 +101,85 @@ class OperationQueueScheduler extends libFableServiceProviderBase
 			await this.Store.updateTask(tmpScope, { IDOperationTask: tmpTask.IDOperationTask, Status: 'Failed', LastError: (pOutcome && pOutcome.Error) || 'failed' });
 			await this._bumpGroupCount(tmpScope, tmpTask.IDOperationGroup, 'FailedUnits');
 		}
+
+		// For a generative group, the completed unit's frontier node closes out: on success with discovered
+		// children it EXPANDS the frontier (the recursion), otherwise it just marks the node done. Then check
+		// whether the whole group has drained and, if so, reap it to Done (the module owns that transition).
+		let tmpGroup = await this.Store.readGroup(tmpScope, tmpTask.IDOperationGroup);
+		if (tmpGroup && tmpGroup.Generative)
+		{
+			if (tmpSuccess && pOutcome && Array.isArray(pOutcome.Expand) && pOutcome.Expand.length > 0)
+			{
+				await this.Intent.expandFrontier(tmpScope, tmpGroup, tmpTask.UnitKey, pOutcome.Expand);
+			}
+			else
+			{
+				await this.Intent.completeFrontierNode(tmpScope, tmpGroup, tmpTask.UnitKey);
+			}
+		}
+		await this._reapIfDone(tmpScope, tmpGroup || { IDOperationGroup: tmpTask.IDOperationGroup });
 		return tmpTask.IDOperationTask;
+	}
+
+	// Reap a group to Done when it has drained: its expansion is exhausted (cursor Exhausted, or the
+	// generative frontier is empty) AND none of its tasks are still in flight. Fires the intent's group-done
+	// hook so consumers can react. This transition lives in the module so every consumer gets the same Done.
+	async _reapIfDone(pScope, pGroup)
+	{
+		let tmpGroup = await this.Store.readGroup(pScope, pGroup.IDOperationGroup);
+		if (!tmpGroup || tmpGroup.Status !== 'Active') { return false; }
+		// Cheapest disqualifier first: a group with any in-flight task cannot be done. Counting the handful of
+		// Fed/Running rows short-circuits every progressing group here, so the heavier frontier-exhaustion read
+		// only runs once a walk has actually drained -- not on every tick while it is climbing.
+		let tmpInflight = await this.Store.countInflightForGroup(pScope, tmpGroup.IDOperationGroup);
+		if (tmpInflight > 0) { return false; }
+		let tmpExhausted = await this.Intent.isExpansionExhausted(pScope, tmpGroup);
+		if (!tmpExhausted) { return false; }
+		await this.Store.updateGroup(pScope, { IDOperationGroup: tmpGroup.IDOperationGroup, Status: 'Done', FinishedDate: new Date().toISOString() });
+		let tmpDone = await this.Store.readGroup(pScope, tmpGroup.IDOperationGroup);
+		this.Intent._fireGroupDone(pScope, tmpDone || tmpGroup);
+		return true;
+	}
+
+	/**
+	 * Restart reconcile: re-drive tasks a crash left in-flight (Fed/Running). Idempotent, and guarded by a
+	 * per-task attempt cap so a node that keeps crashing dead-letters to Failed instead of looping forever.
+	 * Generative tasks reset their frontier node back to pending (re-claimed next tick); a classic task,
+	 * whose cursor has already moved past it, is retired Failed so its slot frees and the consumer re-drives
+	 * it on demand. Call once on boot, before pumping. Returns { Requeued, DeadLettered }.
+	 */
+	async reconcileInflight(pAttemptCap)
+	{
+		let tmpCap = parseInt(pAttemptCap, 10) || 5;
+		let tmpOrphans = await this.Store.readInflightTasks();
+		let tmpRequeued = 0;
+		let tmpDead = 0;
+		for (let tmpTask of tmpOrphans)
+		{
+			let tmpScope = { IDUser: tmpTask.OwnerIDUser, IDCustomer: tmpTask.IDCustomer };
+			let tmpGroup = await this.Store.readGroup(tmpScope, tmpTask.IDOperationGroup);
+			let tmpGenerative = !!(tmpGroup && tmpGroup.Generative);
+			let tmpNode = tmpGenerative ? await this.Store.getFrontierNode(tmpScope, tmpTask.IDOperationGroup, tmpTask.UnitKey) : null;
+			// The attempt count PERSISTS on the frontier node across re-feeds (a re-fed task starts fresh),
+			// so the node is the source of truth for a generative walk; a classic task uses its own Attempt.
+			let tmpPrior = tmpNode ? (parseInt(tmpNode.Attempt, 10) || 0) : (parseInt(tmpTask.Attempt, 10) || 0);
+			let tmpAttempt = tmpPrior + 1;
+			if (tmpGenerative && tmpAttempt <= tmpCap)
+			{
+				if (tmpNode) { await this.Store.updateFrontier(tmpScope, { IDOperationFrontier: tmpNode.IDOperationFrontier, State: 'pending', Attempt: tmpAttempt }); }
+				await this.Store.updateTask(tmpScope, { IDOperationTask: tmpTask.IDOperationTask, Status: 'Reconciled', Attempt: tmpAttempt });
+				tmpRequeued++;
+			}
+			else
+			{
+				let tmpReason = tmpGenerative ? ('dead-lettered after ' + tmpCap + ' attempts') : 'orphaned by restart';
+				if (tmpNode) { await this.Store.deleteFrontier(tmpNode.IDOperationFrontier); }
+				await this.Store.updateTask(tmpScope, { IDOperationTask: tmpTask.IDOperationTask, Status: 'Failed', Attempt: tmpAttempt, LastError: tmpReason });
+				await this._bumpGroupCount(tmpScope, tmpTask.IDOperationGroup, 'FailedUnits');
+				tmpDead++;
+			}
+		}
+		return { Requeued: tmpRequeued, DeadLettered: tmpDead };
 	}
 
 	// Cancel a whole group: mark it Canceled and cancel its in-flight tasks through the execution client.

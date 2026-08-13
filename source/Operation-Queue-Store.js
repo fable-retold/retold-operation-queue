@@ -26,34 +26,56 @@ class OperationQueueStore extends libFableServiceProviderBase
 	}
 
 	/**
-	 * Bring up the SQLite provider, ensure the tables exist, and build one Meadow DAL per entity.
+	 * Bring up the Meadow provider, ensure the tables exist, and build one Meadow DAL per entity.
 	 * Idempotent: createTables is CREATE TABLE IF NOT EXISTS, and a second connect is a no-op.
+	 *
+	 * Provider resolution, in order:
+	 *   1. ATTACH -- a Meadow provider the HOST already stood up on this Fable (MeadowPostgreSQLProvider or
+	 *      MeadowSQLiteProvider). The queue then shares the app's database + connection, so its tables live
+	 *      alongside the app's on one connection (the "everything on Postgres" topology).
+	 *   2. STANDALONE -- none present, so bring our own up from settings.DatabaseProvider ('PostgreSQL' or
+	 *      'SQLite', default SQLite), each reading its own settings block exactly like the Retold foundation.
+	 * The connection modules are required lazily so a SQLite-only queue (the hermetic tests) never loads pg.
 	 */
 	connect(fCallback)
 	{
 		let tmpSelf = this;
 		if (this.Connected) { return fCallback(); }
 
-		let tmpFilePath = (this.options && this.options.SQLiteFilePath) ||
-			(this.fable.settings.SQLite && this.fable.settings.SQLite.SQLiteFilePath) || ':memory:';
-		if (!this.fable.settings.SQLite) { this.fable.settings.SQLite = {}; }
-		this.fable.settings.SQLite.SQLiteFilePath = tmpFilePath;
+		let tmpProvider = this.fable.MeadowPostgreSQLProvider ? { Name: 'PostgreSQL', Service: 'MeadowPostgreSQLProvider' }
+			: this.fable.MeadowSQLiteProvider ? { Name: 'SQLite', Service: 'MeadowSQLiteProvider' }
+			: (String(this.fable.settings.DatabaseProvider) === 'PostgreSQL') ? { Name: 'PostgreSQL', Service: 'MeadowPostgreSQLProvider' }
+			: { Name: 'SQLite', Service: 'MeadowSQLiteProvider' };
 
-		if (!this.fable.MeadowSQLiteProvider)
+		let fEnsureProvider = (fNext) =>
 		{
-			this.fable.addAndInstantiateServiceType('MeadowSQLiteProvider', libMeadowConnectionSQLite);
-		}
-		this.fable.MeadowSQLiteProvider.connectAsync((pConnectError) =>
+			if (tmpSelf.fable[tmpProvider.Service]) { return fNext(); }   // attach: the host already connected it
+			if (tmpProvider.Name === 'PostgreSQL')
+			{
+				tmpSelf.fable.addAndInstantiateServiceType(tmpProvider.Service, require('meadow-connection-postgresql'));
+			}
+			else
+			{
+				let tmpFilePath = (tmpSelf.options && tmpSelf.options.SQLiteFilePath) ||
+					(tmpSelf.fable.settings.SQLite && tmpSelf.fable.settings.SQLite.SQLiteFilePath) || ':memory:';
+				if (!tmpSelf.fable.settings.SQLite) { tmpSelf.fable.settings.SQLite = {}; }
+				tmpSelf.fable.settings.SQLite.SQLiteFilePath = tmpFilePath;
+				tmpSelf.fable.addAndInstantiateServiceType(tmpProvider.Service, libMeadowConnectionSQLite);
+			}
+			tmpSelf.fable[tmpProvider.Service].connectAsync((pConnectError) => fNext(pConnectError));
+		};
+
+		fEnsureProvider((pConnectError) =>
 		{
 			if (pConnectError) { return fCallback(pConnectError); }
-			tmpSelf.fable.MeadowSQLiteProvider.createTables(tmpSelf.MeadowModel, (pTableError) =>
+			tmpSelf.fable[tmpProvider.Service].createTables(tmpSelf.MeadowModel, (pTableError) =>
 			{
 				if (pTableError) { return fCallback(pTableError); }
 				let tmpMeadow = libMeadow.new(tmpSelf.fable);
 				Object.keys(tmpSelf.MeadowModel.Tables).forEach((pTableName) =>
 				{
 					let tmpDAL = tmpMeadow.loadFromPackageObject(tmpSelf.MeadowModel.Tables[pTableName].MeadowSchema);
-					tmpDAL.setProvider('SQLite');
+					tmpDAL.setProvider(tmpProvider.Name);
 					tmpSelf.DAL[pTableName] = tmpDAL;
 				});
 				tmpSelf.Connected = true;
@@ -98,6 +120,20 @@ class OperationQueueStore extends libFableServiceProviderBase
 			if (!tmpDAL) { return fReject(new Error('No DAL for [' + pTable + '].')); }
 			let tmpQuery = fBuildQuery ? fBuildQuery(tmpDAL.query.clone()) : tmpDAL.query.clone();
 			tmpDAL.doReads(tmpQuery, (pError, pReadQuery, pRows) => (pError ? fReject(pError) : fResolve(pRows || [])));
+		});
+	}
+
+	// A real SELECT COUNT(*) -- the number without ever marshaling the rows into JS. The scheduler's drain
+	// checks run on every tick against a frontier/task tail that can be hundreds of thousands of rows, so a
+	// count MUST NOT go through _reads (which loads every matched row just to take .length).
+	_count(pTable, fBuildQuery)
+	{
+		return new Promise((fResolve, fReject) =>
+		{
+			let tmpDAL = this.DAL[pTable];
+			if (!tmpDAL) { return fReject(new Error('No DAL for [' + pTable + '].')); }
+			let tmpQuery = fBuildQuery ? fBuildQuery(tmpDAL.query.clone()) : tmpDAL.query.clone();
+			tmpDAL.doCount(tmpQuery, (pError, pCountQuery, pCount) => (pError ? fReject(pError) : fResolve(pCount || 0)));
 		});
 	}
 
@@ -172,6 +208,83 @@ class OperationQueueStore extends libFableServiceProviderBase
 		});
 	}
 
+	// ---- OperationFrontier (the live wavefront of a generative group's walk) ----
+
+	// Bulk-create pending frontier nodes for a group (a walk's newly-discovered directories/tree nodes).
+	createFrontierNodes(pScope, pNodes)
+	{
+		let tmpSelf = this;
+		return Promise.all((pNodes || []).map((pNode) =>
+			tmpSelf._create('OperationFrontier', tmpSelf._own(pScope, Object.assign({ State: 'pending', Attempt: 0 }, pNode)), pScope.IDUser)));
+	}
+
+	// The next pending nodes for a group, oldest first (breadth-first-ish), capped to a batch. The cap
+	// keeps a wide frontier from being fully read every tick; the slice is a belt in case a provider
+	// ignores the cap.
+	readPendingFrontier(pScope, pIDOperationGroup, pLimit)
+	{
+		return this._reads('OperationFrontier', (pQuery) =>
+		{
+			pQuery.addFilter('IDOperationGroup', pIDOperationGroup)
+				.addFilter('OwnerIDUser', pScope.IDUser).addFilter('IDCustomer', pScope.IDCustomer)
+				.addFilter('State', 'pending')
+				.addSort({ Column: 'IDOperationFrontier', Direction: 'Ascending' });
+			if (pLimit) { pQuery.setCap(pLimit); }
+			return pQuery;
+		}).then((pRows) =>
+		{
+			let tmpRows = pRows.filter((pRow) => !pRow.Deleted);
+			return pLimit ? tmpRows.slice(0, pLimit) : tmpRows;
+		});
+	}
+
+	// Find a group's active (not-yet-done) frontier node by its NodeKey (how a completion locates its node).
+	getFrontierNode(pScope, pIDOperationGroup, pNodeKey)
+	{
+		return this._reads('OperationFrontier', (pQuery) => pQuery
+			.addFilter('IDOperationGroup', pIDOperationGroup)
+			.addFilter('OwnerIDUser', pScope.IDUser).addFilter('IDCustomer', pScope.IDCustomer)
+			.addFilter('NodeKey', pNodeKey))
+			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted && pRow.State !== 'done')[0] || null);
+	}
+
+	updateFrontier(pScope, pNode) { return this._update('OperationFrontier', pNode, pScope.IDUser); }
+
+	// Remove a frontier node once it is expanded/done, so the table holds ONLY the live wavefront -- a walk of
+	// millions of directories keeps its current breadth here, not every directory ever, which keeps the
+	// exhaustion + pending reads cheap. Best-effort: a delete failure is non-fatal (countFrontierActive still
+	// ignores non-pending/walking rows).
+	deleteFrontier(pIDOperationFrontier)
+	{
+		let tmpSelf = this;
+		return new Promise((fResolve) =>
+		{
+			let tmpDAL = tmpSelf.DAL['OperationFrontier'];
+			if (!tmpDAL) { return fResolve(); }
+			// HARD delete (disableDeleteTracking) -- the row must physically leave the table, not soft-flag to a
+			// tombstone, or a million-directory walk's frontier would grow without bound. It also keeps the prune
+			// off the Deleted column entirely.
+			let tmpQuery = tmpDAL.query.clone().addFilter('IDOperationFrontier', pIDOperationFrontier).setDisableDeleteTracking(true);
+			tmpDAL.doDelete(tmpQuery, () => fResolve());
+		});
+	}
+
+	// Count the still-active (pending or walking) frontier nodes of a group -- zero means the walk is done.
+	// A COUNT per live state (never a SELECT *): a wide walk keeps hundreds of thousands of pending nodes here
+	// and this runs on the scheduler's drain check, so it must not read the wavefront into JS.
+	countFrontierActive(pScope, pIDOperationGroup)
+	{
+		let fScoped = (pState) => (pQuery) => pQuery
+			.addFilter('IDOperationGroup', pIDOperationGroup)
+			.addFilter('OwnerIDUser', pScope.IDUser).addFilter('IDCustomer', pScope.IDCustomer)
+			.addFilter('Deleted', 0).addFilter('State', pState);
+		return Promise.all(
+			[
+				this._count('OperationFrontier', fScoped('pending')),
+				this._count('OperationFrontier', fScoped('walking'))
+			]).then((pCounts) => pCounts[0] + pCounts[1]);
+	}
+
 	// ---- system-level reads (no owner filter) for the scheduler infrastructure ----
 	// The scheduler meters every owner's work into one shared execution window, so it needs an unscoped
 	// view. Rows still carry their owner scope; the scheduler uses it when it acts on their behalf.
@@ -207,6 +320,22 @@ class OperationQueueStore extends libFableServiceProviderBase
 	{
 		return this.readTasks(pScope, (pQuery) => pQuery.addFilter('IDOperationGroup', pIDOperationGroup))
 			.then((pRows) => pRows.filter((pRow) => pRow.Status === 'Fed' || pRow.Status === 'Running'));
+	}
+
+	// Count one group's in-flight (Fed/Running) tasks -- the scheduler's cheap "is this group still working?"
+	// short-circuit. A COUNT per status, so the accumulating tail of Done/Failed task rows is never read into
+	// JS just to find the handful still running. Any positive count means the group cannot be reaped yet.
+	countInflightForGroup(pScope, pIDOperationGroup)
+	{
+		let fScoped = (pStatus) => (pQuery) => pQuery
+			.addFilter('IDOperationGroup', pIDOperationGroup)
+			.addFilter('OwnerIDUser', pScope.IDUser).addFilter('IDCustomer', pScope.IDCustomer)
+			.addFilter('Deleted', 0).addFilter('Status', pStatus);
+		return Promise.all(
+			[
+				this._count('OperationTask', fScoped('Fed')),
+				this._count('OperationTask', fScoped('Running'))
+			]).then((pCounts) => pCounts[0] + pCounts[1]);
 	}
 
 	// Every in-flight task with an ExecRef, across all owners (for reconciling against the execution queue).

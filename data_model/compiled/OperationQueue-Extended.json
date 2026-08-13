@@ -80,6 +80,10 @@
                     "Size": "16"
                 },
                 {
+                    "Column": "Generative",
+                    "DataType": "Boolean"
+                },
+                {
                     "Column": "TotalUnits",
                     "DataType": "Numeric",
                     "Size": "int"
@@ -205,6 +209,11 @@
                         "Size": "16"
                     },
                     {
+                        "Column": "Generative",
+                        "Type": "Boolean",
+                        "Size": "Default"
+                    },
+                    {
                         "Column": "TotalUnits",
                         "Type": "Integer",
                         "Size": "int"
@@ -262,6 +271,7 @@
                     "Lane": "",
                     "Priority": 0,
                     "Status": "",
+                    "Generative": false,
                     "TotalUnits": 0,
                     "FedUnits": 0,
                     "CompletedUnits": 0,
@@ -337,6 +347,10 @@
                         "Status": {
                             "type": "string",
                             "size": "16"
+                        },
+                        "Generative": {
+                            "type": "boolean",
+                            "size": "Default"
                         },
                         "TotalUnits": {
                             "type": "integer",
@@ -448,6 +462,10 @@
                                 "Column": "Status",
                                 "DataType": "String",
                                 "Size": "16"
+                            },
+                            {
+                                "Column": "Generative",
+                                "DataType": "Boolean"
                             },
                             {
                                 "Column": "TotalUnits",
@@ -575,6 +593,11 @@
                                     "Size": "16"
                                 },
                                 {
+                                    "Column": "Generative",
+                                    "Type": "Boolean",
+                                    "Size": "Default"
+                                },
+                                {
                                     "Column": "TotalUnits",
                                     "Type": "Integer",
                                     "Size": "int"
@@ -632,6 +655,7 @@
                                 "Lane": "",
                                 "Priority": 0,
                                 "Status": "",
+                                "Generative": false,
                                 "TotalUnits": 0,
                                 "FedUnits": 0,
                                 "CompletedUnits": 0,
@@ -707,6 +731,10 @@
                                     "Status": {
                                         "type": "string",
                                         "size": "16"
+                                    },
+                                    "Generative": {
+                                        "type": "boolean",
+                                        "size": "Default"
                                     },
                                     "TotalUnits": {
                                         "type": "integer",
@@ -1717,12 +1745,495 @@
                 },
                 "Authorization": {}
             }
+        },
+        "OperationFrontier": {
+            "TableName": "OperationFrontier",
+            "Domain": "Default",
+            "Columns": [
+                {
+                    "Column": "IDOperationFrontier",
+                    "DataType": "ID"
+                },
+                {
+                    "Column": "GUIDOperationFrontier",
+                    "DataType": "GUID",
+                    "Size": "36"
+                },
+                {
+                    "Column": "CreateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "UpdateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "Deleted",
+                    "DataType": "Boolean"
+                },
+                {
+                    "Column": "DeleteDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "CreatingIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "OwnerIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDCustomer",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDOperationGroup",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "NodeKey",
+                    "DataType": "String",
+                    "Size": "2048"
+                },
+                {
+                    "Column": "Depth",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "State",
+                    "DataType": "String",
+                    "Size": "16"
+                },
+                {
+                    "Column": "Attempt",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "Params",
+                    "DataType": "JSON"
+                }
+            ],
+            "Indices": [],
+            "Description": "The live wavefront of a GENERATIVE group's lazy walk: nodes (directories, or any tree unit) that have\n\nbeen discovered but not yet expanded. Only the live frontier is ever materialized -- a node is deleted\n\nonce it is expanded -- so a tree of millions of files keeps only its current breadth here, never the\n\nwhole backlog. State moves pending -> walking (claimed + fed to the execution queue) -> done. Attempt\n\nguards restart re-drives so a node that keeps crashing dead-letters instead of looping forever.",
+            "MeadowSchema": {
+                "Scope": "OperationFrontier",
+                "DefaultIdentifier": "IDOperationFrontier",
+                "Domain": "Default",
+                "Schema": [
+                    {
+                        "Column": "IDOperationFrontier",
+                        "Type": "AutoIdentity",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "GUIDOperationFrontier",
+                        "Type": "AutoGUID",
+                        "Size": "36"
+                    },
+                    {
+                        "Column": "CreateDate",
+                        "Type": "CreateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "UpdateDate",
+                        "Type": "UpdateDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "Deleted",
+                        "Type": "Deleted",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "DeleteDate",
+                        "Type": "DeleteDate",
+                        "Size": "Default"
+                    },
+                    {
+                        "Column": "CreatingIDUser",
+                        "Type": "CreateIDUser",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "OwnerIDUser",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDCustomer",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "IDOperationGroup",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "NodeKey",
+                        "Type": "String",
+                        "Size": "2048"
+                    },
+                    {
+                        "Column": "Depth",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "State",
+                        "Type": "String",
+                        "Size": "16"
+                    },
+                    {
+                        "Column": "Attempt",
+                        "Type": "Integer",
+                        "Size": "int"
+                    },
+                    {
+                        "Column": "Params",
+                        "Type": "Default",
+                        "Size": "Default"
+                    }
+                ],
+                "DefaultObject": {
+                    "IDOperationFrontier": 0,
+                    "GUIDOperationFrontier": "0x0000000000000000",
+                    "CreateDate": null,
+                    "UpdateDate": null,
+                    "Deleted": false,
+                    "DeleteDate": null,
+                    "CreatingIDUser": 0,
+                    "OwnerIDUser": 0,
+                    "IDCustomer": 0,
+                    "IDOperationGroup": 0,
+                    "NodeKey": "",
+                    "Depth": 0,
+                    "State": "",
+                    "Attempt": 0
+                },
+                "JsonSchema": {
+                    "title": "OperationFrontier",
+                    "type": "object",
+                    "properties": {
+                        "IDOperationFrontier": {
+                            "type": "integer",
+                            "size": "Default"
+                        },
+                        "GUIDOperationFrontier": {
+                            "type": "string",
+                            "size": "36"
+                        },
+                        "CreateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "UpdateDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "Deleted": {
+                            "type": "boolean",
+                            "size": "Default"
+                        },
+                        "DeleteDate": {
+                            "type": "string",
+                            "size": "Default"
+                        },
+                        "CreatingIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "OwnerIDUser": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDCustomer": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "IDOperationGroup": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "NodeKey": {
+                            "type": "string",
+                            "size": "2048"
+                        },
+                        "Depth": {
+                            "type": "integer",
+                            "size": "int"
+                        },
+                        "State": {
+                            "type": "string",
+                            "size": "16"
+                        },
+                        "Attempt": {
+                            "type": "integer",
+                            "size": "int"
+                        }
+                    },
+                    "required": [
+                        "IDOperationFrontier"
+                    ],
+                    "MeadowSchema": {
+                        "TableName": "OperationFrontier",
+                        "Domain": "Default",
+                        "Columns": [
+                            {
+                                "Column": "IDOperationFrontier",
+                                "DataType": "ID"
+                            },
+                            {
+                                "Column": "GUIDOperationFrontier",
+                                "DataType": "GUID",
+                                "Size": "36"
+                            },
+                            {
+                                "Column": "CreateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "UpdateDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "Deleted",
+                                "DataType": "Boolean"
+                            },
+                            {
+                                "Column": "DeleteDate",
+                                "DataType": "DateTime"
+                            },
+                            {
+                                "Column": "CreatingIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "OwnerIDUser",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDCustomer",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "IDOperationGroup",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "NodeKey",
+                                "DataType": "String",
+                                "Size": "2048"
+                            },
+                            {
+                                "Column": "Depth",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "State",
+                                "DataType": "String",
+                                "Size": "16"
+                            },
+                            {
+                                "Column": "Attempt",
+                                "DataType": "Numeric",
+                                "Size": "int"
+                            },
+                            {
+                                "Column": "Params",
+                                "DataType": "JSON"
+                            }
+                        ],
+                        "Indices": [],
+                        "Description": "The live wavefront of a GENERATIVE group's lazy walk: nodes (directories, or any tree unit) that have\n\nbeen discovered but not yet expanded. Only the live frontier is ever materialized -- a node is deleted\n\nonce it is expanded -- so a tree of millions of files keeps only its current breadth here, never the\n\nwhole backlog. State moves pending -> walking (claimed + fed to the execution queue) -> done. Attempt\n\nguards restart re-drives so a node that keeps crashing dead-letters instead of looping forever.",
+                        "MeadowSchema": {
+                            "Scope": "OperationFrontier",
+                            "DefaultIdentifier": "IDOperationFrontier",
+                            "Domain": "Default",
+                            "Schema": [
+                                {
+                                    "Column": "IDOperationFrontier",
+                                    "Type": "AutoIdentity",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "GUIDOperationFrontier",
+                                    "Type": "AutoGUID",
+                                    "Size": "36"
+                                },
+                                {
+                                    "Column": "CreateDate",
+                                    "Type": "CreateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "UpdateDate",
+                                    "Type": "UpdateDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "Deleted",
+                                    "Type": "Deleted",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "DeleteDate",
+                                    "Type": "DeleteDate",
+                                    "Size": "Default"
+                                },
+                                {
+                                    "Column": "CreatingIDUser",
+                                    "Type": "CreateIDUser",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "OwnerIDUser",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDCustomer",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "IDOperationGroup",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "NodeKey",
+                                    "Type": "String",
+                                    "Size": "2048"
+                                },
+                                {
+                                    "Column": "Depth",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "State",
+                                    "Type": "String",
+                                    "Size": "16"
+                                },
+                                {
+                                    "Column": "Attempt",
+                                    "Type": "Integer",
+                                    "Size": "int"
+                                },
+                                {
+                                    "Column": "Params",
+                                    "Type": "Default",
+                                    "Size": "Default"
+                                }
+                            ],
+                            "DefaultObject": {
+                                "IDOperationFrontier": 0,
+                                "GUIDOperationFrontier": "0x0000000000000000",
+                                "CreateDate": null,
+                                "UpdateDate": null,
+                                "Deleted": false,
+                                "DeleteDate": null,
+                                "CreatingIDUser": 0,
+                                "OwnerIDUser": 0,
+                                "IDCustomer": 0,
+                                "IDOperationGroup": 0,
+                                "NodeKey": "",
+                                "Depth": 0,
+                                "State": "",
+                                "Attempt": 0
+                            },
+                            "JsonSchema": {
+                                "title": "OperationFrontier",
+                                "type": "object",
+                                "properties": {
+                                    "IDOperationFrontier": {
+                                        "type": "integer",
+                                        "size": "Default"
+                                    },
+                                    "GUIDOperationFrontier": {
+                                        "type": "string",
+                                        "size": "36"
+                                    },
+                                    "CreateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "UpdateDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "Deleted": {
+                                        "type": "boolean",
+                                        "size": "Default"
+                                    },
+                                    "DeleteDate": {
+                                        "type": "string",
+                                        "size": "Default"
+                                    },
+                                    "CreatingIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "OwnerIDUser": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDCustomer": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "IDOperationGroup": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "NodeKey": {
+                                        "type": "string",
+                                        "size": "2048"
+                                    },
+                                    "Depth": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    },
+                                    "State": {
+                                        "type": "string",
+                                        "size": "16"
+                                    },
+                                    "Attempt": {
+                                        "type": "integer",
+                                        "size": "int"
+                                    }
+                                },
+                                "required": [
+                                    "IDOperationFrontier"
+                                ]
+                            },
+                            "Authorization": {}
+                        }
+                    }
+                },
+                "Authorization": {}
+            }
         }
     },
     "TablesSequence": [
         "OperationGroup",
         "OperationTask",
-        "OperationCursor"
+        "OperationCursor",
+        "OperationFrontier"
     ],
     "Authorization": {
         "OperationGroup": {
@@ -1970,6 +2481,128 @@
             }
         },
         "OperationCursor": {
+            "__DefaultAPISecurity": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Unauthenticated": {
+                "Create": "Deny",
+                "Read": "Deny",
+                "Reads": "Deny",
+                "ReadsBy": "Deny",
+                "ReadMax": "Deny",
+                "ReadSelectList": "Deny",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Deny",
+                "CountBy": "Deny",
+                "Schema": "Deny",
+                "Validate": "Deny",
+                "New": "Deny"
+            },
+            "Readonly": {
+                "Create": "Deny",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Deny",
+                "Delete": "Deny",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Deny"
+            },
+            "User": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Manager": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "Mine",
+                "Delete": "Mine",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Director": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Executive": {
+                "Create": "Allow",
+                "Read": "MyCustomer",
+                "Reads": "MyCustomer",
+                "ReadsBy": "MyCustomer",
+                "ReadMax": "MyCustomer",
+                "ReadSelectList": "MyCustomer",
+                "Update": "MyCustomer",
+                "Delete": "MyCustomer",
+                "Count": "MyCustomer",
+                "CountBy": "MyCustomer",
+                "Schema": "MyCustomer",
+                "Validate": "MyCustomer",
+                "New": "MyCustomer"
+            },
+            "Administrator": {
+                "Create": "Allow",
+                "Read": "Allow",
+                "Reads": "Allow",
+                "ReadsBy": "Allow",
+                "ReadMax": "Allow",
+                "ReadSelectList": "Allow",
+                "Update": "Allow",
+                "Delete": "Allow",
+                "Count": "Allow",
+                "CountBy": "Allow",
+                "Schema": "Allow",
+                "Validate": "Allow",
+                "New": "Allow"
+            }
+        },
+        "OperationFrontier": {
             "__DefaultAPISecurity": {
                 "Create": "Deny",
                 "Read": "Deny",

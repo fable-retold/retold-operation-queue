@@ -29,9 +29,16 @@ const _MeadowModel = require('../data_model/compiled/OperationQueue-Extended.jso
  */
 function createStandalone(pOptions, fCallback)
 {
-	let tmpOptions = Object.assign({ LogStreams: [ { level: 'warn' } ] }, pOptions || {});
+	let tmpOptions = Object.assign({ Product: 'OperationQueue', LogStreams: [ { level: 'warn' } ] }, pOptions || {});
 	let tmpFable = new libFable(tmpOptions);
-	if (tmpOptions.SQLiteFilePath)
+	// PostgreSQL when asked (its own database per queue engine keeps engines isolated the way a per-engine
+	// SQLite file does); SQLite otherwise. Each provider reads its own settings block, like the foundation.
+	if (String(tmpOptions.DatabaseProvider) === 'PostgreSQL')
+	{
+		tmpFable.settings.DatabaseProvider = 'PostgreSQL';
+		if (tmpOptions.PostgreSQL) { tmpFable.settings.PostgreSQL = Object.assign({}, tmpFable.settings.PostgreSQL, tmpOptions.PostgreSQL); }
+	}
+	else if (tmpOptions.SQLiteFilePath)
 	{
 		if (!tmpFable.settings.SQLite) { tmpFable.settings.SQLite = {}; }
 		tmpFable.settings.SQLite.SQLiteFilePath = tmpOptions.SQLiteFilePath;

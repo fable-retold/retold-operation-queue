@@ -21,6 +21,7 @@ $SourceRef 2048
 $Lane 16
 #Priority
 $Status 16
+^Generative
 #TotalUnits
 #FedUnits
 #CompletedUnits
@@ -70,3 +71,25 @@ $ExecRef 128
 *CursorToken
 ^Exhausted
 #YieldedCount
+
+!OperationFrontier
+>The live wavefront of a GENERATIVE group's lazy walk: nodes (directories, or any tree unit) that have
+>been discovered but not yet expanded. Only the live frontier is ever materialized -- a node is deleted
+>once it is expanded -- so a tree of millions of files keeps only its current breadth here, never the
+>whole backlog. State moves pending -> walking (claimed + fed to the execution queue) -> done. Attempt
+>guards restart re-drives so a node that keeps crashing dead-letters instead of looping forever.
+@IDOperationFrontier
+%GUIDOperationFrontier 36
+&CreateDate
+&UpdateDate
+^Deleted
+&DeleteDate
+#CreatingIDUser
+#OwnerIDUser
+#IDCustomer
+#IDOperationGroup
+$NodeKey 2048
+#Depth
+$State 16
+#Attempt
+{Params

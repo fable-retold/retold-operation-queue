@@ -37,7 +37,7 @@ suite('retold-operation-queue store', () =>
 	test('connect builds a DAL per entity', () =>
 	{
 		Expect(_store.Connected).to.equal(true);
-		Expect(Object.keys(_store.DAL).sort()).to.deep.equal([ 'OperationCursor', 'OperationGroup', 'OperationTask' ]);
+		Expect(Object.keys(_store.DAL).sort()).to.deep.equal([ 'OperationCursor', 'OperationFrontier', 'OperationGroup', 'OperationTask' ]);
 	});
 
 	test('a group round-trips and is stamped with the owner scope', async () =>

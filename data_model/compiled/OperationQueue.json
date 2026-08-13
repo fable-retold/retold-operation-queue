@@ -80,6 +80,10 @@
                     "Size": "16"
                 },
                 {
+                    "Column": "Generative",
+                    "DataType": "Boolean"
+                },
+                {
                     "Column": "TotalUnits",
                     "DataType": "Numeric",
                     "Size": "int"
@@ -271,6 +275,83 @@
             ],
             "Indices": [],
             "Description": "The resumable position of a group's lazy enumerator: where the next batch of leaf units picks up,\n\nso a huge group can be walked incrementally across restarts without ever listing it all at once.\n\nOne row per group. CursorToken is opaque and consumer-defined (for example, the last path yielded)."
+        },
+        "OperationFrontier": {
+            "TableName": "OperationFrontier",
+            "Domain": "Default",
+            "Columns": [
+                {
+                    "Column": "IDOperationFrontier",
+                    "DataType": "ID"
+                },
+                {
+                    "Column": "GUIDOperationFrontier",
+                    "DataType": "GUID",
+                    "Size": "36"
+                },
+                {
+                    "Column": "CreateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "UpdateDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "Deleted",
+                    "DataType": "Boolean"
+                },
+                {
+                    "Column": "DeleteDate",
+                    "DataType": "DateTime"
+                },
+                {
+                    "Column": "CreatingIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "OwnerIDUser",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDCustomer",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "IDOperationGroup",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "NodeKey",
+                    "DataType": "String",
+                    "Size": "2048"
+                },
+                {
+                    "Column": "Depth",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "State",
+                    "DataType": "String",
+                    "Size": "16"
+                },
+                {
+                    "Column": "Attempt",
+                    "DataType": "Numeric",
+                    "Size": "int"
+                },
+                {
+                    "Column": "Params",
+                    "DataType": "JSON"
+                }
+            ],
+            "Indices": [],
+            "Description": "The live wavefront of a GENERATIVE group's lazy walk: nodes (directories, or any tree unit) that have\n\nbeen discovered but not yet expanded. Only the live frontier is ever materialized -- a node is deleted\n\nonce it is expanded -- so a tree of millions of files keeps only its current breadth here, never the\n\nwhole backlog. State moves pending -> walking (claimed + fed to the execution queue) -> done. Attempt\n\nguards restart re-drives so a node that keeps crashing dead-letters instead of looping forever."
         }
     }
 }
