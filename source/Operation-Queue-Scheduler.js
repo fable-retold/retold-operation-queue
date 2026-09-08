@@ -33,6 +33,87 @@ class OperationQueueScheduler extends libFableServiceProviderBase
 	get Store() { return this.Intent && this.Intent.Store; }
 
 	// One metering pass: fill the free window with the highest-priority pending work.
+	/**
+	 * Hand one unit to the execution client, durably.
+	 *
+	 * THE ROW IS WRITTEN BEFORE THE HAND-OFF, and that ordering is the whole point. It used to be the other
+	 * way round, which left two windows with no way back:
+	 *
+	 *   - enqueue REJECTS. The exception left tick() entirely, so every remaining unit in the batch was
+	 *     dropped -- permanently, because nextBatch persists the cursor past a unit before the unit is ever
+	 *     handed over. One transient 500 from the execution queue silently lost the rest of the batch.
+	 *   - enqueue SUCCEEDS and the row write then fails. The work is running in the execution queue with no
+	 *     task row at all, so neither the completion path (which resolves by ExecRef) nor reconcile (which
+	 *     reads in-flight rows) can ever see it. It runs, finishes, and the plan never learns either.
+	 *
+	 * Reserving first inverts both. A crash between the reservation and the hand-off leaves a Fed row with
+	 * no ExecRef, which is exactly what reconcile now looks for; an orphaned EXECUTION is undetectable, an
+	 * orphaned ROW is not. The cost is that a unit can be reserved and never dispatched, which reconcile
+	 * retires the same way it retires any other interrupted task.
+	 *
+	 * Idempotent on re-feed: a unit whose row already exists reuses it rather than opening a second one for
+	 * the same work, so a cursor that offers a unit twice after a crash cannot double-dispatch it.
+	 *
+	 * Returns true when the unit was handed over, false when it was reserved but the hand-off failed. Never
+	 * throws: one failing unit must not abort a tick and strand the rest of its batch, which was the first
+	 * of the two windows above.
+	 */
+	async _feedUnit(pScope, pGroup, pUnit)
+	{
+		let tmpTask = null;
+		try
+		{
+			tmpTask = await this.Store.readTaskByUnitKey(pScope, pGroup.IDOperationGroup, pUnit.UnitKey);
+			if (tmpTask && (tmpTask.Status === 'Fed' || tmpTask.Status === 'Running'))
+			{
+				// Already in flight from an earlier tick. Leave it alone; reconcile owns it now.
+				return false;
+			}
+			if (!tmpTask)
+			{
+				tmpTask = await this.Store.createTask(pScope,
+					{
+						IDOperationGroup: pGroup.IDOperationGroup,
+						UnitKey: pUnit.UnitKey,
+						Lane: pUnit.Lane,
+						Priority: pUnit.Priority,
+						Status: 'Fed',
+						ExecRef: ''
+					});
+			}
+			else
+			{
+				// A previously failed or reconciled row for this unit: reuse it rather than accumulating one
+				// row per attempt, so the unit's history stays on a single row.
+				await this.Store.updateTask(pScope,
+					{ IDOperationTask: tmpTask.IDOperationTask, Status: 'Fed', ExecRef: '', LastError: '' });
+			}
+		}
+		catch (pReserveError)
+		{
+			// Could not even reserve. Nothing was dispatched, so the unit is simply not fed this tick; the
+			// consumer's dedup and cursor decide whether it comes back.
+			this.log.warn('OperationQueue: could not reserve ' + pUnit.UnitKey + ' ('
+				+ (pReserveError && pReserveError.message) + ').');
+			return false;
+		}
+
+		try
+		{
+			let tmpExecRef = await this.ExecutionClient.enqueue(pUnit);
+			await this.Store.updateTask(pScope,
+				{ IDOperationTask: tmpTask.IDOperationTask, ExecRef: String(tmpExecRef) });
+			return true;
+		}
+		catch (pEnqueueError)
+		{
+			// The row survives with no ExecRef, which is what makes this recoverable rather than silent.
+			this.log.warn('OperationQueue: hand-off failed for ' + pUnit.UnitKey + ' ('
+				+ (pEnqueueError && pEnqueueError.message) + '); its task row is reserved for reconcile.');
+			return false;
+		}
+	}
+
 	async tick()
 	{
 		if (!this.ExecutionClient) { throw new Error('No execution client set; call setExecutionClient() first.'); }
@@ -55,19 +136,15 @@ class OperationQueueScheduler extends libFableServiceProviderBase
 			for (let tmpUnit of tmpBatch.Units)
 			{
 				if (tmpRoom <= 0) { break; }
-				let tmpExecRef = await this.ExecutionClient.enqueue(tmpUnit);
-				await this.Store.createTask(tmpScope,
-					{
-						IDOperationGroup: tmpGroup.IDOperationGroup,
-						UnitKey: tmpUnit.UnitKey,
-						Lane: tmpUnit.Lane,
-						Priority: tmpUnit.Priority,
-						Status: 'Fed',
-						ExecRef: String(tmpExecRef)
-					});
-				tmpGroup.FedUnits = (tmpGroup.FedUnits || 0) + 1;
-				await this.Store.updateGroup(tmpScope, { IDOperationGroup: tmpGroup.IDOperationGroup, FedUnits: tmpGroup.FedUnits });
-				tmpFed++;
+				let tmpFedUnit = await this._feedUnit(tmpScope, tmpGroup, tmpUnit);
+				if (tmpFedUnit)
+				{
+					tmpGroup.FedUnits = (tmpGroup.FedUnits || 0) + 1;
+					await this.Store.updateGroup(tmpScope, { IDOperationGroup: tmpGroup.IDOperationGroup, FedUnits: tmpGroup.FedUnits });
+					tmpFed++;
+				}
+				// The slot is consumed either way. A unit whose hand-off failed holds a Fed row until
+				// reconcile deals with it, so counting it here keeps the window honest.
 				tmpRoom--;
 			}
 		}

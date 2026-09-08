@@ -391,7 +391,13 @@ class OperationQueueStore extends libFableServiceProviderBase
 			]).then((pCounts) => pCounts[0] + pCounts[1]);
 	}
 
-	// Every in-flight task with an ExecRef, across all owners (for reconciling against the execution queue).
+	// Every in-flight task, across all owners (for reconciling against the execution queue).
+	//
+	// This used to require an ExecRef, which was safe only while a row could not exist without one. The
+	// scheduler now RESERVES a row before handing its unit to the execution client, so a row with no ExecRef
+	// is the case that most needs reconciling: the hand-off either never happened or its acknowledgement was
+	// lost. Filtering those out would have made the reservation invisible to the only thing that cleans up
+	// after a crash, which is the leak the reservation exists to close.
 	readInflightTasks()
 	{
 		return Promise.all(
@@ -399,7 +405,19 @@ class OperationQueueStore extends libFableServiceProviderBase
 				this._reads('OperationTask', (pQuery) => pQuery.addFilter('Status', 'Fed')),
 				this._reads('OperationTask', (pQuery) => pQuery.addFilter('Status', 'Running'))
 			])
-			.then((pResults) => pResults[0].concat(pResults[1]).filter((pRow) => !pRow.Deleted && pRow.ExecRef));
+			.then((pResults) => pResults[0].concat(pResults[1]).filter((pRow) => !pRow.Deleted));
+	}
+
+	/**
+	 * One group's task for a given unit, whatever its status. Used to keep a re-fed unit idempotent: the
+	 * scheduler reserves a row BEFORE handing the unit to the execution client, so a unit the cursor offers
+	 * again after a crash must find its existing row rather than open a second one for the same work.
+	 */
+	readTaskByUnitKey(pScope, pIDOperationGroup, pUnitKey)
+	{
+		return this.readTasks(pScope, (pQuery) => pQuery
+			.addFilter('IDOperationGroup', pIDOperationGroup).addFilter('UnitKey', pUnitKey))
+			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted)[0] || null);
 	}
 }
 
