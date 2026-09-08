@@ -1,6 +1,6 @@
 {
   "name": "retold-operation-queue",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Intent/control layer over an execution queue: durable operation groups that lazily expand into leaf tasks, lane-based preemptive priority, cache-key dedup, and metered dispatch of a bounded window into a worker queue (for example Ultravisor). The source of truth for very large, browse-driven operation backlogs.",
   "main": "source/Operation-Queue.js",
   "scripts": {
