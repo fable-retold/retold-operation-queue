@@ -303,6 +303,17 @@ class OperationQueueStore extends libFableServiceProviderBase
 
 	updateFrontier(pScope, pNode) { return this._update('OperationFrontier', pNode, pScope.IDUser); }
 
+	// A group's frontier nodes in one State. Restart reconcile reads the 'walking' ones (claimed, maybe never fed);
+	// walking nodes are bounded by the window, so this never reads the wide pending wavefront.
+	readFrontierByState(pScope, pIDOperationGroup, pState)
+	{
+		return this._reads('OperationFrontier', (pQuery) => pQuery
+			.addFilter('IDOperationGroup', pIDOperationGroup)
+			.addFilter('OwnerIDUser', pScope.IDUser).addFilter('IDCustomer', pScope.IDCustomer)
+			.addFilter('State', pState))
+			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted));
+	}
+
 	// Remove a frontier node once it is expanded/done, so the table holds ONLY the live wavefront -- a walk of
 	// millions of directories keeps its current breadth here, not every directory ever, which keeps the
 	// exhaustion + pending reads cheap. Best-effort: a delete failure is non-fatal (countFrontierActive still
@@ -361,11 +372,42 @@ class OperationQueueStore extends libFableServiceProviderBase
 			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted));
 	}
 
-	// Resolve a task by its execution-queue handle (how a completion callback finds its task).
+	/**
+	 * Resolve a LIVE (Fed/Running) task by its execution-queue handle (how a completion callback finds its task).
+	 *
+	 * Only a live task resolves. A handle is only as unique as the execution client that issued it, a local client's
+	 * counter can restart with its process, and finished task rows are kept -- so a Done row from an earlier boot can
+	 * carry the very handle a new task was just given. Resolving that stale row captured the new completion: the
+	 * real task stayed Fed forever, holding a window slot, and a generative walk stalled. A completion for a task
+	 * that is no longer live (reconciled, requeued, canceled) is correctly a no-op.
+	 */
 	readTaskByExecRef(pExecRef)
 	{
 		return this._reads('OperationTask', (pQuery) => pQuery.addFilter('ExecRef', pExecRef))
-			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted)[0] || null);
+			.then((pRows) => pRows.filter((pRow) => !pRow.Deleted && (pRow.Status === 'Fed' || pRow.Status === 'Running'))[0] || null);
+	}
+
+	// One classic group's Requeued tasks (units a restart interrupted, waiting to be re-fed from the unit stored on
+	// their row), oldest first, capped to the free window.
+	readRequeuedTasksForGroup(pScope, pIDOperationGroup, pLimit)
+	{
+		return this.readTasks(pScope, (pQuery) =>
+		{
+			pQuery.addFilter('IDOperationGroup', pIDOperationGroup).addFilter('Status', 'Requeued')
+				.addSort({ Column: 'IDOperationTask', Direction: 'Ascending' });
+			if (pLimit) { pQuery.setCap(pLimit); }
+			return pQuery;
+		}).then((pRows) => (pLimit ? pRows.slice(0, pLimit) : pRows));
+	}
+
+	// Count one group's Requeued tasks. A group with any is not drained, even with nothing in flight and its
+	// cursor exhausted: those units still have to run.
+	countRequeuedForGroup(pScope, pIDOperationGroup)
+	{
+		return this._count('OperationTask', (pQuery) => pQuery
+			.addFilter('IDOperationGroup', pIDOperationGroup)
+			.addFilter('OwnerIDUser', pScope.IDUser).addFilter('IDCustomer', pScope.IDCustomer)
+			.addFilter('Deleted', 0).addFilter('Status', 'Requeued'));
 	}
 
 	// The in-flight tasks of one group (owner-scoped), for group cancellation.

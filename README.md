@@ -35,6 +35,26 @@ releases.
 Owner scope (OwnerIDUser + IDCustomer) is carried on every row and supplied by the consumer; the
 module does not impose a tenancy model of its own.
 
+## Restarts and failures
+
+- Call `Scheduler.reconcileInflight(attemptCap)` once at boot, before the first `tick()`. Every task
+  a crash left in flight (Fed/Running) is re-driven, up to `attemptCap` attempts per unit, then
+  dead-lettered Failed with a reason.
+  - A generative unit's frontier node goes back to pending.
+  - A classic unit is re-fed from the copy of the unit stored on its task row when it was reserved
+    (its cursor is already past it). Re-fed units go ahead of new cursor work, and the group is not
+    reaped Done until they have run. Rows reserved by 0.5.1 or earlier have no stored unit and
+    retire Failed.
+  - Walk claims left with no task behind them are released.
+- A re-driven unit reaches `enqueue` with `unit.Attempt > 0`. Re-driving means an interrupted
+  attempt can run again, so a consumer with non-idempotent work should check whether that attempt
+  already got as far as its side effects.
+- ExecRefs must be unique across restarts, not only within one process. Finished task rows are kept,
+  and `reportOutcome` resolves only a live (Fed/Running) task. A consumer's in-process client should
+  put a per-boot nonce in its refs.
+- `tick()` feeds each group in isolation. A group whose enumerator throws is skipped for that tick,
+  left Active, and reported in the result's `Errors`. The other groups are still fed.
+
 ## Install
 
     npm install retold-operation-queue

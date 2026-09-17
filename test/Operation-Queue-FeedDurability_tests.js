@@ -133,8 +133,10 @@ suite('retold-operation-queue feed durability', () =>
 		let tmpReconciled = await _engineInst.Scheduler.reconcileInflight();
 		Expect(tmpReconciled.Requeued + tmpReconciled.DeadLettered, 'both in-flight rows were dealt with').to.equal(2);
 
+		// The reserved row carries its unit, so reconcile re-drives it (see Operation-Queue-Recovery_tests) rather than
+		// leaving it Fed or throwing the unit away.
 		let tmpAfter = await _engineInst.Store.readTaskByUnitKey(_scope, tmpGroup.IDOperationGroup, 'b');
-		Expect(tmpAfter.Status, 'the reserved row reached a terminal state rather than lingering').to.equal('Failed');
+		Expect(tmpAfter.Status, 'the reserved row is queued to be re-driven rather than lingering Fed').to.equal('Requeued');
 	});
 
 	test('a successful hand-off records the handle, so completion can still resolve it', async () =>
